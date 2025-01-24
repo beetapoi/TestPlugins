@@ -1,0 +1,45 @@
+name: Build Samehadaku Plugin
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout kode dari repositori
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 2. Setup JDK (Java Development Kit)
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      # 3. Cache Gradle Dependencies (Opsional, untuk mempercepat build)
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 4. Build Plugin
+      - name: Build Plugin
+        run: ./gradlew build
+
+      # 5. Upload Artefak (File Plugin .csx)
+      - name: Upload Plugin Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: samehadaku-plugin
+          path: Samehadaku/*.csx
